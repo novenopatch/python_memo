@@ -1,0 +1,244 @@
+Combinaisons
+
+En construction
+Objectif
+
+Exemple pour des combinaisons de 3 objets pris 2 à 2. Soit une liste d'objets [1,2,3]:
+
+    on veut connaitre toutes les façons de les présenter 2 à 2, sans tenir compte de l'ordre: [[1, 2], [1, 3], [2, 3]],
+
+    en tenant compte si nécessaires de répétitions
+
+    et on veut savoir combien il y en a.
+
+NB: Contrairement aux permutations et aux arrangements, on ne tient pas compte de l'ordre: ainsi, [1, 2] et [2, 1] ne compte que pour 1.
+
+
+Référence externe pour la définition: voir http://fr.wikipedia.org/wiki/Combinaison_%28math%C3%A9matiques%29 et http://fr.wikipedia.org/wiki/Combinaison_avec_r%C3%A9p%C3%A9tition
+Nombre de combinaisons de n objets pris k à k
+
+Le calcul du nombre de combinaisons de n objets pris k à k est donnée par la formule:
+
+Cnk~=~{n!}/{k!(n-k)!}~=~{n(n-1)(n-2)...(n-k+1)}/{k!}
+
+Soit, en Python (si fact(n)=factorielle de n):
+
+Cnk = fact(n)/(fact(k)*fact(n-k)) = n*(n-1)*(n-2)*…*(n-k+1)/fact(k)
+Solution non-récursive
+
+Puisque nous sommes sous Python qui sait calculer des nombres entiers énormes, nous pouvons utiliser brutalement les factorielles en prenant la fonction fact(n) présentée ailleurs sur ce site: 
+combin = lambda n,k: fact(n)//(fact(k)*fact(n-k))
+Il est difficile de faire plus simple…
+
+Mais le plus efficace est quand même le suivant, qui calcule progressivement le résultat sans calculer des grands nombres: 
+def combin(n, k): """Nombre de combinaisons de n objets pris k a k""" if k > n//2: k = n-k x = 1 y = 1 i = n-k+1 while i <= n: x = (x*i)//y y += 1 i += 1 return x
+Attention à ne pas utiliser dans ce code le raccourci habituel x *= i//y, car il faut que la multiplication ait lieu avant la division entière, sinon celle-ci ne tombe pas juste, et le résultat final est faux.
+
+Pour que cette fonction soit utilisable avec de très grands nombres, j'ai tenu compte des points suivants:
+
+    il faut utiliser while au lieu de for, car xrange() ne supporte pas les types 'long' (en contrepartie de sa rapidité).
+
+    si k>n//2, alors combin(n,k) est remplacé par combin(n, n-k) qui donne le même résultat avec moins de calculs.
+
+Exemple d'utilisation:
+print combin(3,2)  # affiche 3
+print combin(50,20)  # affiche 47129212243960
+
+
+
+Ce code est très rapide: par exemple, le nombre de combinaisons de 100000 (cent mille) objets pris 100 à 100 donne en moins d'1/1000 de seconde un nombre de 343 chiffres:
+
+1019745118068508355816143175813864936340849501519143871777101229221311704707028464150801159851819171048218667041957300317610197834902713500555020173048960798706784754817501032954266210951200883251987669862675631847360156537041811409331039637713779759572781307343494274990819880664139309679429703675390591419799883108282575404188096902252124000
+Solution récursive
+
+La solution récursive est particulièrement simple: 
+def combin(n,k): """Nombre de combinaisons de n objets pris k a k (calcul récursif)""" if k==0 or k==n: return 1 return combin(n-1, k-1) + combin(n-1,k)
+
+Malheureusement, cette solution est moins rapide que la dernière solution étudiée. De plus, elle est limitée à cause de la taille de la pile de récursion (env. 1000).
+
+Pour mémoire, citons une version non-récursive qui imite assez bien la version récursive en gérant directement la pile des appels: 
+
+def combin(n, k): """Nombre de combinaisons de n objets pris k a k (non récursif, mais imitant le récursif)""" pile = [[n,k]] r = 0 while len(pile)>0: i, j = pile.pop(-1) if j==0 or i==j: r += 1 else: pile.append([i-1,j-1]) pile.append([i-1,j]) return r
+de
+Le principe n'est pas très compliqué. On utilise une pile pour conserver les combinaisons en attente de résolution, identifiées par de simples couples de type [n,k]. La variable r, initialisée à 0, contiendra le résultat final.
+
+- initialement, la pile ne contient que le but à attendre: [n,k].
+
+- A chaque boucle while, on dépile le dernier couple [i,j]. Les 2 seuls couples dont on connait la valeur correspondent à combin(x,0), 1ère colonne du triangle de Pascal, et combin(x,x), diagonale (ou plutôt hypothénuse) du même triangle, et cette valeur est 1. Dans ce cas, on incrémente r de cette valeur et on continue. Dans les autres cas, on remplace le couple [i,j] par les 2 couples [i-1,j-1] et [i-1,j] qu'on empile.
+
+La boucle s'arrête quand la pile est vide! et le résultat r est renvoyé.
+
+Voyons cela sur un exemple. On ajoute juste après le while la ligne suivante (avec la bonne indentation): 
+print r, pile
+et on lance l'exemple: 
+print combin(5,3)
+Ce qui affiche: 
+0 [[5, 3]] 0 [[4, 2], [4, 3]] 0 [[4, 2], [3, 2], [3, 3]] 1 [[4, 2], [3, 2]] 1 [[4, 2], [2, 1], [2, 2]] 2 [[4, 2], [2, 1]] 2 [[4, 2], [1, 0], [1, 1]] 3 [[4, 2], [1, 0]] 4 [[4, 2]] 4 [[3, 1], [3, 2]] 4 [[3, 1], [2, 1], [2, 2]] 5 [[3, 1], [2, 1]] 5 [[3, 1], [1, 0], [1, 1]] 6 [[3, 1], [1, 0]] 7 [[3, 1]] 7 [[2, 0], [2, 1]] 7 [[2, 0], [1, 0], [1, 1]] 8 [[2, 0], [1, 0]] 9 [[2, 0]] 10
+ On voit bien que r n'est incrémentée (et la pile dépilée) que lorsque la combinaison finale est [0,x] ou [x,x].
+
+Le résultat final est ok, mais par rapport au code non-récursif précédent, celui-ci donne une lenteur… affligeante!
+
+A ne conserver que pour des considérations théoriques.
+Liste des combinaisons d'une liste de n objets pris k à k
+
+Nous savons maintenant calculer le nombre de combinaisons, nous voulons maintenant en établir la liste.
+
+Par exemple, nous voulons trouver la liste de toutes les combinaisons de de 3 objets [1,2,3] pris 2 à 2, qui est: [[1,2], [1,3], [2,3]]
+
+Nous allons reprendre tout simplement le principe de “l'ensemble des parties d'un ensemble” traité dans une autre page de ce site, mais en limitant notre résultat au nombre k d'éléments voulue dans chaque partie.
+
+Cela donnera comme code: 
+def combinliste(seq, k): p = [] i, imax = 0, 2**len(seq)-1 while i<=imax: s = [] j, jmax = 0, len(seq)-1 while j<=jmax: if (i>>j)&1==1: s.append(seq[j]) j += 1 if len(s)==k: p.append(s) i += 1 return p
+Exemples d'utilisation: 
+Comme vu précédemment, ces listes trouvées peuvent être triées.
+Liste des combinaisons d'une chaine de n caractères pris k à k
+
+C'est le même principe, à part que la donnée est une chaîne de n caractères, et qu'on cherche toutes les combinaisons des n caractères pris k à k.
+
+La solution la plus simple est d'utiliser la fonction précédente: 
+def combinchaine(ch,k): return [''.join(x) for x in combinliste(list(ch),k)]
+Exemple d'utilisation: 
+print combinchaine('ABCD',3) ['ACD', 'ABD', 'ABC', 'BCD']
+Combinaisons de n objets distincts pris k à k avec répétition
+
+Pour la théorie, voir par exemple: http://fr.wikipedia.org/wiki/Combinaison_avec_r%C3%A9p%C3%A9tition
+
+ici, on a n objets distincts, mais on veut les voir répétés dans les résultats des combinaisons de ces n objets pris k à k.
+
+Par exemple, [1,2,3] ⇒ [[1, 1], [1, 2], [1, 3], [2, 2], [2, 3], [3, 3]] alors que sans répétitions: [[1, 2], [1, 3], [2, 3]]
+Nombre de combinaisons de n objets distincts pris k à k avec répétition
+
+Ce nombre est égal à la combinaison de (n+k-1) objets pris k à k.
+
+D'ou la fonction: 
+def combinrep(n, k): """Nombre de combinaisons avec répétition de n objets distincts pris k a k""" return combin(n+k-1, k)
+Exemple pour [1,2,3] pris 2 à 2 avec répétition: 
+print combinrep(3,2) 6
+Liste des combinaisons de n objets distincts pris k à k avec répétition
+
+On va utiliser la liste des combinaisons “normales” (sans répétition) de la façon suivante:
+
+    expansion de la liste initiale, de sorte que chacun des n objets soit répété k fois. Par exemple pour [1,2,3] et k=2 ⇒ [1,1,2,2,3,3]
+
+    calcul de la liste des combinaisons “normales” de cette nouvelle liste comportant k*n objets pris k à k
+
+    élimination du résultat des redondances de sorte que chaque séquence n'apparaisse qu'une seule fois.
+
+Ce qui donne comme code:
+
+def combinlisterep(seq, k):
+    """Renvoie la liste des combinaisons avec répétition des objets de seq pris k à k"""
+    # ajoute chaque objet de seq pour quils apparaissent chacun k fois
+    seq2 = []
+    for elem in seq:
+        if elem not in seq2:
+            for i in xrange(0,k):
+                seq2.append(elem)
+    # calcule la liste "normale" des combinaisons
+    p = combinliste(seq2, k)
+    # élimine de cette liste les éléments identiques (comme [1,2] et [1,2])
+    p2 = []
+    for x in p:
+        if x not in p2:
+            p2.append(x)
+    # et renvoie le résultat
+    return p2
+
+Exemple:
+
+print combinlisterep([1,2,3],2)
+[[1, 1], [1, 2], [1, 3], [2, 2], [2, 3], [3, 3]]
+
+Liste des combinaisons d'une chaine de n caractères pris k à k avec répétition
+
+On va simplement utiliser la fonction précédente:
+
+def combinchainerep(ch,k):
+    return [''.join(x) for x in combinlisterep(list(ch),k)]
+
+Exemple:
+
+ch = '123'
+print combinchainerep(ch,2)
+['11', '12', '13', '22', '23', '33']
+
+Combinaisons de n objets non tous distincts pris k à k avec ou sans répétition
+
+Ici, on va généraliser tout ce qu'on a vu jusqu'à présent, pour faire à peu près tout ce qu'on veut!
+
+Par exemple, on a [1,2,2,3,4,4,4,5], et on va chercher les combinaisons de ces objets pris 3 à 3
+
+On voit qu'on a 8 objets, avec 5 objets distincts (le 2 apparait 2 fois, et le 4 apparait 3 fois).
+
+Le fait que certains objets se retrouvent à plusieurs exemplaires va entrainer 2 conséquences dans la liste des résultats:
+
+    présence de répétitions d'éléments dans chaque séquence. Exemple: [1,2,2]
+
+    présence de répétition de séquences dans la liste. Exemple: [2,4,5] et [2,4,5]
+
+On va donc créer du code pour, selon le problème à résoudre, supprimer des résultats l'une ou l'autre de ces répétitions (ou les 2).
+
+Suppression de la liste résultat des séquences comportant des répétitions d'éléments (exemple: [1,2,2])
+
+def sansrepetelem(p):
+    """Supprime de la liste p toutes les séquences avec des doublons comme [1,2,2]"""
+    r = []
+    for seq in p:
+        for elem in seq:
+            ok = True
+            if seq.count(elem)!=1:
+                ok = False
+                break
+        if ok:
+            r.append(seq)
+    return r
+
+Exemple:
+
+p = [[1,2,2],[1,2,3],[1,1,2]]
+print sansrepetelem(p)
+[[1, 2, 3]]
+
+Dans la liste résultat, suppression des séquences répétées de sorte que chaque séquence n'apparaisse qu'une seule fois (exemple: [[1,2,4],[1,2,4]] ⇒ [[1,2,4]])
+
+def sansrepetseq(p):
+    """Supprime de la liste p toutes les répétitions de séquences comme [1,2,4] et [1,2,4]"""
+    r = []
+    for seq in p:
+        if seq not in r:
+            r.append(seq)
+    return r
+
+Exemple:
+
+p = [[1,2,4],[1,2,3],[1,2,4]]
+print sansrepetseq(p)
+[[1, 2, 4], [1, 2, 3]]
+
+On peut même supprimer les 2 type de répétitions d'un seul coup:
+
+def sansrepet(p):
+    return sansrepetelem(sansrepetseq(p))
+
+On peut aussi vouloir calculer le nombre d'éléments disticts d'une séquence:
+
+def elemdiff(seq):
+    """Renvoie le nombre d'éléments différents de la liste seq"""
+    r = []
+    for elem in seq:
+        if elem not in r:
+            r.append(elem)
+    return len(r)    
+
+Reprenons maintenant notre exemple plus haut: seq=[1,2,2,3,4,4,4,5] et cherchons les combinaisons de ces objets non tous distincts, pris 3 à 3:
+
+(à terminer)
+
+
+Amusez-vous bien!
+
+combinaisons.txt · Dernière modification: 2010/01/10 09:34 par tyrtamos
+Sauf mention contraire, le contenu de ce wiki est placé sous les termes de la licence suivante : CC Attribution-Noncommercial-Share Alike 4.0 International
+CC Attribution-Noncommercial-Share Alike 4.0 International Donate Powered by PHP Valid HTML5 Valid CSS Driven by DokuWiki
+print combinliste(['A','B','C'],2) # affiche [['A', 'B'], ['A', 'C'], ['B', 'C']] print combinliste(['ab','cd','ef','gh','ij'],3) # affiche [['ab', 'ef', 'ij'], ['ab', 'ef', 'gh'], ['ab', 'gh', 'ij'], ['ab', 'cd', 'gh'], ['ab', 'cd', 'ij'], ['ab', 'cd', 'ef'], ['cd', 'ef', 'gh'], ['cd', 'ef', 'ij'], ['cd', 'gh', 'ij'], ['ef', 'gh', 'ij']]
+

